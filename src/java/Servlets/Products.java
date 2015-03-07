@@ -51,7 +51,7 @@ public class Products extends HttpServlet{
             }
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                sb.append(String.format("%s\t%s\t%s\t%s\n", rs.getInt("ProductID"), rs.getString("Name"), rs.getString("Desc"),rs.getInt("Quantity")));
+                sb.append(String.format("%s\t%s\t%s\t%s\n", rs.getInt("ProductID"), rs.getString("Name"), rs.getString("Description"),rs.getInt("Quantity")));
             }
         } catch (SQLException ex) {
             Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
@@ -62,15 +62,15 @@ public class Products extends HttpServlet{
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         Set<String> keySet = request.getParameterMap().keySet();
         try (PrintWriter out = response.getWriter()) {
-            if (keySet.contains("name") && keySet.contains("desc") && keySet.contains("quantity")) {
+            if (keySet.contains("name") && keySet.contains("description") && keySet.contains("quantity")) {
                 // There are some parameters                
                 String name = request.getParameter("name");
-                String desc = request.getParameter("desc");
+                String desc = request.getParameter("description");
                 String quantity = request.getParameter("quantity");
-                doUpdate("INSERT INTO sample (name, age) VALUES (?, ?)", name, quantity);
+                doUpdate("INSERT INTO Products (Name, Description, Quantity) VALUES (?, ?, ?)", name, desc, quantity);
             } else {
                 // There are no parameters at all
-                out.println("Error: Not enough data to input. Please use a URL of the form /Products?name=XXX&desc=XXX&");
+                out.println("Error: Not enough data to input. Please use a URL of the form /Products?name=XXX&description=XXX&quantity=XXX");
             }
         } catch (IOException ex) {
             Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
