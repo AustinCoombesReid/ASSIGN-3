@@ -79,6 +79,7 @@ public class Products extends HttpServlet{
     }
      @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+        String result;
         Set<String> keySet = request.getParameterMap().keySet();
         try (PrintWriter out = response.getWriter()) {
             if (keySet.contains("name") && keySet.contains("description") && keySet.contains("quantity")) {
@@ -86,7 +87,11 @@ public class Products extends HttpServlet{
                 String name = request.getParameter("name");
                 String desc = request.getParameter("description");
                 String quantity = request.getParameter("quantity");
-                doUpdate("INSERT INTO Products (Name, Description, Quantity) VALUES (?, ?, ?)", name, desc, quantity);
+               result = (doUpdate("INSERT INTO Products (Name, Description, Quantity) VALUES (?, ?, ?)", name, desc, quantity));
+               if (result.equalsIgnoreCase("YOU MESSED UP")){
+                    response.setStatus(500);
+                }
+                out.println(result);
             } else {
                 // There are no parameters at all
                 out.println("Error: Not enough data to input. Please use a URL of the form /Products?name=XXX&description=XXX&quantity=XXX");
@@ -95,21 +100,29 @@ public class Products extends HttpServlet{
             Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    private int doUpdate(String query, String... params) {
-        int numChanges = 0;
+    private String doUpdate(String query, String... params) {
+        String STRINGZ = "";
         try (Connection conn = credentials.getConnection()) {
-            PreparedStatement pstmt = conn.prepareStatement(query);
+            PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             for (int i = 1; i <= params.length; i++) {
                 pstmt.setString(i, params[i - 1]);
             }
-            numChanges = pstmt.executeUpdate();
+           pstmt.executeUpdate();
+           
+           ResultSet keys = pstmt.getGeneratedKeys();
+           if (keys.next()) {
+               STRINGZ = ("<a>http//localhost/assign-3/Products/"+keys.getInt(1) + "<a>");
+           }else if (params.length ==4) {
+               STRINGZ = ("<a>http//localhost/assign-3/Products/" + String.valueOf(params[4 - 1]) + "<a>");
+           }
         } catch (SQLException ex) {
-            Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
+            STRINGZ = "YOU MESSED UP";
         }
-        return numChanges;
+        return STRINGZ;
     }
      @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) {
+        String result;
         Set<String> keySet = request.getParameterMap().keySet();
         try (PrintWriter out = response.getWriter()) {
             if (keySet.contains("name") && keySet.contains("description") && keySet.contains("quantity") && keySet.contains("id")) {
@@ -118,7 +131,11 @@ public class Products extends HttpServlet{
                 String desc = request.getParameter("description");
                 String quantity = request.getParameter("quantity");
                 String id = request.getParameter("id");
-                doUpdate("UPDATE Products SET Name = ?, Description = ?, Quantity = ? WHERE ProductID = ?", name, desc, quantity, id) ;
+                result= (doUpdate("UPDATE Products SET Name = ?, Description = ?, Quantity = ? WHERE ProductID = ?", name, desc, quantity, id)) ;
+                if (result.equalsIgnoreCase("YOU MESSED UP")){
+                    response.setStatus(500);
+                }
+                out.println(result);
             } else {
                 // There are no parameters at all
                 out.println("Error: Not enough data to input. Please use a URL of the form /Products?name=XXX&description=XXX&quantity=XXX&id=XXX");
