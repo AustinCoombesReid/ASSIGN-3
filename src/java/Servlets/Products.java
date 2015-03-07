@@ -51,7 +51,7 @@ public class Products extends HttpServlet{
             }
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                sb.append(String.format("%s\t%s\t%s\t%s\n", rs.getInt("ProductID"), rs.getString("Name"), rs.getString("Description"),rs.getInt("Quantity")));
+                sb.append(String.format("{ \"ProductID\" : %s, \"Name\" : %s, \"Description\" : %s, \"Quantity\" : %s }\n", rs.getInt("ProductID"), rs.getString("Name"), rs.getString("Description"),rs.getInt("Quantity")));
             }
         } catch (SQLException ex) {
             Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
