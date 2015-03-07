@@ -89,4 +89,23 @@ public class Products extends HttpServlet{
         }
         return numChanges;
     }
+     @Override
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) {
+        Set<String> keySet = request.getParameterMap().keySet();
+        try (PrintWriter out = response.getWriter()) {
+            if (keySet.contains("name") && keySet.contains("description") && keySet.contains("quantity") && keySet.contains("id")) {
+                // There are some parameters                
+                String name = request.getParameter("name");
+                String desc = request.getParameter("description");
+                String quantity = request.getParameter("quantity");
+                String id = request.getParameter("id");
+                doUpdate("UPDATE Products SET Name = ?, Description = ?, Quantity = ? WHERE ProductID = ?", name, desc, quantity, id) ;
+            } else {
+                // There are no parameters at all
+                out.println("Error: Not enough data to input. Please use a URL of the form /Products?name=XXX&description=XXX&quantity=XXX&id=XXX");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
+        }
+}
 }
