@@ -108,4 +108,26 @@ public class Products extends HttpServlet{
             Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
         }
 }
+
+    /**
+     *
+     * @param request
+     * @param response
+     */
+    @Override
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) {
+        Set<String> keySet = request.getParameterMap().keySet();
+        try (PrintWriter out = response.getWriter()) {
+            if (keySet.contains("id")) {
+                // There are some parameters                
+                String id = request.getParameter("id");
+                doUpdate("DELETE FROM Products WHERE ProductID = ?", id) ;
+            } else {
+                // There are no parameters at all
+                out.println("Error: Not enough data to input. Please use a URL of the form /Products?id=XXX");
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
+        }
+}
 }
