@@ -32,7 +32,7 @@ public class Products extends HttpServlet{
         try (PrintWriter out = response.getWriter()) {
             if (!request.getParameterNames().hasMoreElements()) {
                 // There are no parameters at all
-                out.println(getResults("SELECT * FROM Products"));
+                out.println(getResultsARRAYZ("SELECT * FROM Products"));
             } else {
                 // There are some parameters
                 int id = Integer.parseInt(request.getParameter("id"));
@@ -53,6 +53,25 @@ public class Products extends HttpServlet{
             while (rs.next()) {
                 sb.append(String.format("{ \"ProductID\" : %s, \"Name\" : %s, \"Description\" : %s, \"Quantity\" : %s }\n", rs.getInt("ProductID"), rs.getString("Name"), rs.getString("Description"),rs.getInt("Quantity")));
             }
+        } catch (SQLException ex) {
+            Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return sb.toString();
+    }
+    private String getResultsARRAYZ(String query, String... params) {
+        StringBuilder sb = new StringBuilder();
+        try (Connection conn = credentials.getConnection()) {
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            for (int i = 1; i <= params.length; i++) {
+                pstmt.setString(i, params[i - 1]);
+            }
+            ResultSet rs = pstmt.executeQuery();
+            sb.append("[ ");
+            while (rs.next()) {
+                sb.append(String.format("{ \"ProductID\" : %s, \"Name\" : %s, \"Description\" : %s, \"Quantity\" : %s },\n", rs.getInt("ProductID"), rs.getString("Name"), rs.getString("Description"),rs.getInt("Quantity")));
+            }
+            sb.setLength(Math.max(sb.length() - 2, 0));
+            sb.append(" ]");
         } catch (SQLException ex) {
             Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
         }
