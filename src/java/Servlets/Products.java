@@ -135,18 +135,33 @@ public class Products extends HttpServlet{
      */
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) {
+        String result;
         Set<String> keySet = request.getParameterMap().keySet();
         try (PrintWriter out = response.getWriter()) {
             if (keySet.contains("id")) {
                 // There are some parameters                
                 String id = request.getParameter("id");
-                doUpdate("DELETE FROM Products WHERE ProductID = ?", id) ;
-            } else {
-                // There are no parameters at all
-                out.println("Error: Not enough data to input. Please use a URL of the form /Products?id=XXX");
+                result = gottaDelete("DELETE FROM Products WHERE ProductID = ?", id) ;
+                if (result.equalsIgnoreCase("YOU MESSED UP")){
+                    response.setStatus(500);
+                }
+                out.println(result);
             }
         } catch (IOException ex) {
             Logger.getLogger(Products.class.getName()).log(Level.SEVERE, null, ex);
         }
 }
+    private String gottaDelete(String query, String... params) {
+        String badStuff = "";
+        try (Connection conn = credentials.getConnection()) {
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            for (int i = 1; i <= params.length; i++) {
+                pstmt.setString(i, params[i - 1]);
+            }
+            pstmt.executeUpdate();
+        } catch (SQLException ex) {
+            badStuff = "YOU MESSED UP";
+        }
+        return badStuff;
+    }
 }
